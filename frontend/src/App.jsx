@@ -1,25 +1,12 @@
 import { useState, useEffect } from "react";
 import io from 'socket.io-client';
+import axios from 'axios'
 
-// Custom hook for managing socket connection
-const useSocket = (url) => {
-      const [socket, setSocket] = useState(null);
 
-      useEffect(() => {
-            const newSocket = io(url);
-            setSocket(newSocket);
-
-            return () => {
-                  newSocket.disconnect();
-            };
-      }, [url]);
-
-      return socket;
-};
+const socket = io('http://localhost:3500');
 
 const App = () => {
       const [hehe, setHehe] = useState([]);
-      const socket = useSocket('http://localhost:3500');
 
       useEffect(() => {
             if (socket) {
@@ -27,27 +14,35 @@ const App = () => {
                         console.log('Received data from server:', eyow);
                         setHehe(eyow);
                   });
+                  socket.on('newUser', (eyow) => {
+                        setHehe(prevEyow => [...prevEyow, eyow])
+                  });
             }
 
             return () => {
                   if (socket) {
                         socket.off('ey');
+                        socket.off('newUser');
                   }
             };
-      }, [socket]);
+      }, []);
 
       const handleButton = () => {
-            const newHehe = [...hehe, 1];
-            setHehe(newHehe);
+            const newHehe = { name: 'hehe', age: 20, gender: 'ale' };
 
-            if (socket) {
-                  socket.emit('ey', newHehe);
-            }
+            console.log([...hehe, newHehe])
+            axios.post('http://localhost:3500/user', newHehe)
+                  .then(res =>
+                        socket.emit('newUser', res.data)
+                  )
       };
-
       return (
             <div>
-                  {hehe.join(', ')}
+                  {hehe.map((h) => {
+                        return (
+                              h.name + ", "
+                        )
+                  })}
                   <button onClick={handleButton}>
                         Click me boy
                   </button>
