@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import io from 'socket.io-client';
 import axios from 'axios'
 
-
+//trigger to para malaman ng backend na naka connect ka sa kanya okay?
 const socket = io('http://localhost:3500');
 
 const App = () => {
